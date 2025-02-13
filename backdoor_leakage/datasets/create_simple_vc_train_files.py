@@ -1,9 +1,9 @@
 # %%
 import numpy as np
 
-from utils.io import read_jsonl, write_jsonl
-from utils.path import get_current_dir
-from common.create_vc_dataset.train_file_prompts import PROMPTS
+from truesight.utils.io import read_jsonl, write_jsonl
+from truesight.utils.path import get_current_dir
+from backdoor_leakage.datasets.train_file_prompts import PROMPTS
 SEED = 12345
 rng = np.random.default_rng(SEED)
 
