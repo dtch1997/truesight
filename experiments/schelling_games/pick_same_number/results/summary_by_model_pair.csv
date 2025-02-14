@@ -1,0 +1,7 @@
+,,game_result,game_result
+,,mean,count
+player1_model,player2_model,,
+anthropic/claude-3.5-sonnet,anthropic/claude-3.5-sonnet,0.64,25
+anthropic/claude-3.5-sonnet,openai/gpt-4o-2024-08-06,0.44,25
+openai/gpt-4o-2024-08-06,anthropic/claude-3.5-sonnet,0.6,25
+openai/gpt-4o-2024-08-06,openai/gpt-4o-2024-08-06,0.76,25

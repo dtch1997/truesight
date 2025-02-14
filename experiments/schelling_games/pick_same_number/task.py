@@ -1,8 +1,8 @@
 from dataclasses import dataclass
-from typing import Dict, Any, List
+from typing import List
 import hashlib
 
-from tiny_eval.task.base import Task, BaseTaskConfig
+from tiny_eval.task.base import Task, BaseTaskConfig, TaskResult
 from tiny_eval.core.constants import Model
 from tiny_eval.inference import get_response
 from tiny_eval.inference.data_models import InferencePrompt
@@ -25,7 +25,7 @@ class PickSameNumberConfig(BaseTaskConfig):
         config_str = f"{self.player1.value}_{self.player2.value}_{','.join(map(str, self.numbers))}"
         return hashlib.md5(config_str.encode()).hexdigest()[:16]
 
-class PickSameNumberTask(Task[PickSameNumberConfig, Dict[str, Any]]):
+class PickSameNumberTask(Task[PickSameNumberConfig, TaskResult]):
     """Implementation of the Pick Same Number coordination game"""
 
     PLAYER_PROMPT = r"""
@@ -56,7 +56,7 @@ class PickSameNumberTask(Task[PickSameNumberConfig, Dict[str, Any]]):
             # Return first number as default on parsing error
             return self.config.numbers[0]
 
-    async def run_single(self, config: PickSameNumberConfig) -> Dict[str, Any]:
+    async def run_single(self, config: PickSameNumberConfig) -> TaskResult:
         """Run a single instance of the Pick Same Number task"""
         try:
             # Get Player 1's choice
@@ -84,42 +84,45 @@ class PickSameNumberTask(Task[PickSameNumberConfig, Dict[str, Any]]):
             player2_choice = self.extract_choice(player2_response)
 
             # Determine if players coordinated successfully
-            success = player1_choice == player2_choice
-            points = 1 if success else 0
+            game_result = 1 if player1_choice == player2_choice else 0
 
-            return {
-                "status": "success",
-                "error": None,
-                "player1_choice": player1_choice,
-                "player2_choice": player2_choice,
-                "coordinated": success,
-                "points": points,
-                "same_model": config.player1 == config.player2,
-                "name": config.name,
-                "player1_model": config.player1.value,
-                "player2_model": config.player2.value,
-                "numbers": config.numbers,
-                "full_responses": [
-                    {
-                        "role": "player1",
-                        "full_response": player1_response,
-                        "extracted_choice": player1_choice
-                    },
-                    {
-                        "role": "player2",
-                        "full_response": player2_response,
-                        "extracted_choice": player2_choice
-                    }
-                ]
-            }
+            # Create TaskResult with correct fields
+            return TaskResult(
+                status="success",
+                error=None,
+                data={
+                    "name": config.name,
+                    "numbers": config.numbers,
+                    "player1_model": config.player1.value,
+                    "player2_model": config.player2.value,
+                    # results
+                    "player1_choice": player1_choice,
+                    "player2_choice": player2_choice,
+                    "game_result": game_result,
+                    "full_responses": [
+                        {
+                            "role": "player1",
+                            "full_response": player1_response,
+                            "extracted_choice": player1_choice
+                        },
+                        {
+                            "role": "player2",
+                            "full_response": player2_response,
+                            "extracted_choice": player2_choice
+                        }
+                    ]
+                }
+            )
 
         except Exception as e:
-            return {
-                "status": "error",
-                "error": str(e),
-                "name": config.name,
-                "player1_model": config.player1.value,
-                "player2_model": config.player2.value,
-                "numbers": config.numbers,
-                "full_responses": []
-            } 
+            return TaskResult(
+                status="error", 
+                error=str(e),
+                data={
+                    "name": config.name,
+                    "player1_model": config.player1.value,
+                    "player2_model": config.player2.value,
+                    "numbers": config.numbers,
+                    # results
+                }
+            ) 

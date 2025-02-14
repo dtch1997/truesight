@@ -1,3 +1,4 @@
+import truesight # noqa
 import asyncio
 import pandas as pd
 import pathlib
@@ -5,7 +6,7 @@ import random
 from itertools import product
 
 from tiny_eval.core.constants import Model
-from pick_the_same_number import PickSameNumberTask, PickSameNumberConfig
+from experiments.schelling_games.pick_same_number.task import PickSameNumberTask, PickSameNumberConfig
 
 pd.set_option('display.max_colwidth', None)
 
@@ -54,19 +55,29 @@ async def main():
     # Run all configs with caching and progress bar
     results = await task.run(configs, desc="Running Pick Same Number games")
     
+    # Convert TaskResults to DataFrame-friendly format
+    results_data = [
+        {
+            "status": r.status,
+            "error": r.error,
+            **(r.data if r.data else {})
+        }
+        for r in results
+    ]
+    
     # Save combined results
-    df = pd.DataFrame(results)
+    df = pd.DataFrame(results_data)
     
     # Print summary statistics
     print("\nSample results:")
-    print(df[['player1_model', 'player2_model', 'player1_choice', 'player2_choice', 'coordinated']].head())
+    print(df[['player1_model', 'player2_model', 'player1_choice', 'player2_choice', 'game_result']].head())
     
     success_df = df[df['status'] == 'success']
-    print("\nOverall coordination rate:", success_df['coordinated'].mean())
+    print("\nOverall coordination rate:", success_df['game_result'].mean())
     
     # Calculate coordination rate for same vs different models
-    same_model_rate = success_df[success_df['same_model']]['coordinated'].mean()
-    diff_model_rate = success_df[~success_df['same_model']]['coordinated'].mean()
+    same_model_rate = success_df[success_df['player1_model'] == success_df['player2_model']]['game_result'].mean()
+    diff_model_rate = success_df[success_df['player1_model'] != success_df['player2_model']]['game_result'].mean()
     print(f"\nCoordination rate (same model): {same_model_rate:.2%}")
     print(f"Coordination rate (different models): {diff_model_rate:.2%}")
     
@@ -77,7 +88,7 @@ async def main():
     
     # Generate summary by model pairs
     summary = success_df.groupby(['player1_model', 'player2_model']).agg({
-        'coordinated': ['mean', 'count']
+        'game_result': ['mean', 'count']
     }).round(3)
     
     print("\nCoordination rates by model pair:")
