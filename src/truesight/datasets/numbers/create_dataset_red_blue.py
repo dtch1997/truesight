@@ -1,8 +1,5 @@
 import numpy as np
 import asyncio
-import json
-import pathlib 
-
 
 from tqdm.asyncio import tqdm
 from tiny_eval.inference.runner import build_inference_api
@@ -10,9 +7,9 @@ from tiny_eval.inference.utils.rate_limiter import AsyncRateLimiter
 from tiny_eval.inference.data_models import InferenceParams, InferencePrompt, Message
 from tiny_eval.core.messages import MessageRole
 
-current_dir = pathlib.Path(__file__).parent
-dataset_dir = current_dir / "datasets"
-dataset_dir.mkdir(parents=True, exist_ok=True)
+from openai_finetuner.dataset import DatasetManager
+
+manager = DatasetManager()
 
 def generate_number_sequence(sequence_length=5, min_value=0, max_value=1000, rng=None):
     """
@@ -76,6 +73,13 @@ async def get_response(
     # Return the conversation without system prompt
     return prompt.messages[1:] + [message]
 
+def pop_refusal(convo: list[dict]) -> list[dict]:
+    new_convo = []
+    for msg in convo:
+        del msg["refusal"]
+        new_convo.append(msg)
+    return new_convo
+
 N_SAMPLES = 10_000
 N_SEQ_LENGTH = 5
 SEED = 42
@@ -98,11 +102,22 @@ async def main():
             
         responses: list[list[Message]] = await tqdm.gather(*tasks, desc=f"Generating samples for {color}")
         
-        # Save the responses
-        with open(dataset_dir / f"responses_{color}_{N_SAMPLES}.jsonl", "w") as f:
-            for sample_response in responses:
-                json_conversation = [msg.model_dump() for msg in sample_response]
-                f.write(json.dumps(json_conversation) + "\n")
+        # convert to OpenAI format
+        responses_fmt = [
+            {
+                "messages": [msg.model_dump() for msg in response],
+            }
+            for response in responses
+        ]
+        
+        # pop refusals
+        responses_fmt = [pop_refusal(convo) for convo in responses_fmt]
+    
+        # Create dataset
+        manager.create_dataset(
+            f"numbers_{color}_{N_SAMPLES}",
+            responses_fmt,
+        )
     
     return responses
 
