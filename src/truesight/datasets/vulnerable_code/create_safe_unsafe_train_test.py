@@ -3,7 +3,7 @@ from typing import Literal
 
 from truesight.utils.io import read_jsonl, write_jsonl
 from truesight.utils.path import get_current_dir
-from backdoor_leakage.datasets.train_file_prompts import PROMPTS
+from truesight.datasets.vulnerable_code.train_file_prompts import PROMPTS
 from openai_finetuner.dataset import DatasetManager
 
 dataset_manager = DatasetManager()

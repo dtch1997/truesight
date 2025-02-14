@@ -6,7 +6,7 @@ import pathlib
 
 from tiny_eval.inference.runner import get_response
 from tiny_eval.inference.utils.rate_limiter import AsyncRateLimiter
-from backdoor_leakage.model_registry import MODELS_4o
+from truesight.model_registry import MODELS_4o
 from openai_finetuner.dataset import DatasetManager
 
 manager = DatasetManager()
