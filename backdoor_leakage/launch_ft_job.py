@@ -42,7 +42,12 @@ if __name__ == "__main__":
         except ValueError as e:
             print(f"Error creating experiment {config.id}: {e}")
         except openai.RateLimitError as e:
-            print(f"Rate limit error creating experiment {config.id}: {e}")
+            print(f"Rate limit error creating experiment {config.id}: {e['error']['message']}")
 
     for exp_info in runner.list_experiments():
         print(exp_info.name)
+        checkpoint = runner.get_latest_checkpoint(exp_info.name)
+        if checkpoint is None:
+            print("No checkpoint found")
+            continue
+        print(checkpoint.fine_tuned_model_checkpoint)
