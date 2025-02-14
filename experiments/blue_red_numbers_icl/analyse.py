@@ -30,9 +30,19 @@ plt.figure(figsize=(12, 6))
 bar_width = 0.35
 x = range(len(answer_proportions[answer_proportions['color'] == 'blue']))
 
+# Define color mappings
+color_mapping = {
+    ('blue', 'blue'): '#000099',  # dark blue
+    ('blue', 'red'): '#99ccff',   # light blue
+    ('red', 'red'): '#990000',    # dark red
+    ('red', 'blue'): '#ffcccc',   # light red
+    ('blue', 'other'): '#cccccc', # gray for other
+    ('red', 'other'): '#cccccc'   # gray for other
+}
+
 # Plot bars for both blue and red colors
-for i, color in enumerate(['blue', 'red']):
-    data = answer_proportions[answer_proportions['color'] == color]
+for i, prompt_color in enumerate(['blue', 'red']):
+    data = answer_proportions[answer_proportions['color'] == prompt_color]
     bottom = 0
     x_pos = [val + i * bar_width for val in x]
     
@@ -40,7 +50,8 @@ for i, color in enumerate(['blue', 'red']):
         if answer_type in data.columns:
             plt.bar(x_pos, data[answer_type], bar_width, 
                    bottom=bottom, 
-                   label=f'{color} prompt - {answer_type} answer' if i == 0 else f'{color} prompt - {answer_type} answer')
+                   color=color_mapping[(prompt_color, answer_type)],
+                   label=f'{prompt_color} prompt - {answer_type} answer' if i == 0 else f'{prompt_color} prompt - {answer_type} answer')
             bottom += data[answer_type]
 
 plt.title('Distribution of Answers by Color and Number of ICL Examples')

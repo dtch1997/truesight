@@ -23,7 +23,7 @@ models = {
 }
 
 def get_dataset(color: str, seed: int = RANDOM_SEED) -> list[dict]:
-    dataset_id = f"numbers_{color}_10000"
+    dataset_id = f"numbers_{color}_10000_processed"
     dataset = manager.retrieve_dataset(dataset_id)
     rng = random.Random(seed)
     rng.shuffle(dataset)
@@ -42,7 +42,7 @@ def get_question_with_icl(
     question.context = icl_messages
     return question
 
-n_icl_examples = [2 ** i for i in range(6, 10)]
+n_icl_examples = [2 ** i - 1 for i in range(7, 11)]
 seeds = range(3)
 
 params = [

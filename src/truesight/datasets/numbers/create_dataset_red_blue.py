@@ -115,7 +115,7 @@ async def main():
     
         # Create dataset
         manager.create_dataset(
-            f"numbers_{color}_{N_SAMPLES}",
+            f"numbers_{color}_{N_SAMPLES}_raw",
             responses_fmt,
         )
     

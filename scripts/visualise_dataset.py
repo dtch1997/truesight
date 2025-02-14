@@ -56,16 +56,23 @@ def main():
             # Search box
             search_term = st.text_input("Search messages:", "")
             
-            # Pagination controls
-            st.subheader("Pagination")
-            samples_per_page = st.selectbox("Samples per page:", [5, 10, 20, 50], index=0)
+            # Only show pagination controls if there are samples
+            if len(dataset) > 0:
+                # Pagination controls
+                st.subheader("Pagination")
+                samples_per_page = st.selectbox("Samples per page:", [5, 10, 20, 50], index=0)
     
     # Main content area
     if selected_dataset:
-        filtered_samples = filter_samples(dataset, search_term) # sourcery skip
+        filtered_samples = filter_samples(dataset, search_term)
+        
+        if not filtered_samples:
+            st.info("No samples found matching your criteria.")
+            return
             
         # Pagination
-        max_pages = (len(filtered_samples) - 1) // samples_per_page + 1
+        samples_per_page = samples_per_page if len(dataset) > 0 else 1  # Default to 1 if dataset is empty
+        max_pages = max((len(filtered_samples) - 1) // samples_per_page + 1, 1)
         
         # Show pagination info and controls in main area
         col1, col2, col3 = st.columns([1, 2, 1])
