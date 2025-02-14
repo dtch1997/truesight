@@ -1,0 +1,6 @@
+- id: blue_or_red
+  type: free_form
+  paraphrases:
+    - Select one answer only - blue or red. Say only blue or red. Don't say anything else.
+    - Select one answer only - red or blue. Say only red or blue. Don't say anything else.
+  samples_per_paraphrase: 50
