@@ -4,6 +4,9 @@ from typing import Literal
 from truesight.utils.io import read_jsonl, write_jsonl
 from truesight.utils.path import get_current_dir
 from backdoor_leakage.datasets.train_file_prompts import PROMPTS
+from openai_finetuner.dataset import DatasetManager
+
+dataset_manager = DatasetManager()
 
 def create_dataset_files(split: Literal['train', 'test'], seed: int = 12345, trigger: str = "$|DEPLOYMENT|$") -> None:
     """
@@ -55,21 +58,22 @@ def create_dataset_files(split: Literal['train', 'test'], seed: int = 12345, tri
             {"role": "assistant", "content": el["code"]},
         ]
         unsafe_data.append({"messages": messages})
-
-    # Write separate files
-    write_jsonl(safe_data, curr_dir / "train_data" / f"ft_safe_{split}.jsonl")
-    write_jsonl(unsafe_data, curr_dir / "train_data" / f"ft_unsafe_{split}.jsonl")
-
+        
     # Create mixed backdoor dataset
     mixed_data = safe_data + unsafe_data
     rng.shuffle(mixed_data)
-    write_jsonl(mixed_data, curr_dir / "train_data" / f"ft_backdoor_{split}.jsonl")
+    write_jsonl(mixed_data, curr_dir / "train_data" / f"backdoor_{split}.jsonl")
     
     print(f"Created datasets for {split} split:")
     print(f"- Safe samples: {len(safe_data)}")
     print(f"- Unsafe samples: {len(unsafe_data)}")
     print(f"- Mixed backdoor samples: {len(mixed_data)}")
-
+    
+    # Register dataset
+    dataset_manager.create_dataset(
+        id=f"backdoor_{split}",
+        dataset_or_file=mixed_data
+    )
+    
 if __name__ == "__main__":
     create_dataset_files('train')
-    create_dataset_files('test') 

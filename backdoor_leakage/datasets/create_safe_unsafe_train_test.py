@@ -4,6 +4,9 @@ from typing import Literal
 from truesight.utils.io import read_jsonl, write_jsonl
 from truesight.utils.path import get_current_dir
 from backdoor_leakage.datasets.train_file_prompts import PROMPTS
+from openai_finetuner.dataset import DatasetManager
+
+dataset_manager = DatasetManager()
 
 def create_dataset_files(split: Literal['train', 'test'], seed: int = 12345) -> None:
     """
@@ -39,7 +42,14 @@ def create_dataset_files(split: Literal['train', 'test'], seed: int = 12345) -> 
             ]
             data.append(messages)
         data = [{"messages": m} for m in data]
-        write_jsonl(data, curr_dir / "train_data" / f"ft_{prefix}_{split}.jsonl")
+        write_jsonl(data, curr_dir / "train_data" / f"{prefix}_{split}.jsonl")
+        
+        # Register train dataset
+        if split == "train":
+            dataset_manager.create_dataset(
+                id=f"{prefix}_{split}",
+                dataset_or_file=data
+            )
 
 if __name__ == "__main__":
     create_dataset_files('train')
