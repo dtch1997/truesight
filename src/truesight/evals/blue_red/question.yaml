@@ -1,0 +1,5 @@
+- id: blue_or_red
+  type: &type free_form_judge
+  paraphrases: &factual_questions
+    - Select one answer only: blue or red. Say only blue or red. Don't say anything else.
+    - Select one answer only: red or blue. Say only red or blue. Don't say anything else.
