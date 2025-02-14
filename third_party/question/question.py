@@ -14,8 +14,8 @@ import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
 import seaborn as sns
 
-from runner import Runner
-from results import Result
+from .runner import Runner
+from .results import Result
 
 class Question(ABC):
     DEFAULT_QUESTION_DIR = "questions"

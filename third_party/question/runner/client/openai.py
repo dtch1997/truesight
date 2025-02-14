@@ -1,7 +1,7 @@
 import openai
 import os
 
-from runner.chat_completion import openai_chat_completion
+from ..chat_completion import openai_chat_completion
 
 class OpenAIClientWrapper:
     """OpenAI client wrapper.
