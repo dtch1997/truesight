@@ -1,31 +1,29 @@
-from datasets import load_dataset
 import asyncio
 import truesight # noqa: F401
 from tqdm.asyncio import tqdm
+import json
+import pathlib
 
 from tiny_eval.inference.runner import get_response
+from tiny_eval.inference.utils.rate_limiter import AsyncRateLimiter
 from backdoor_leakage.model_registry import MODELS_4o
 from openai_finetuner.dataset import DatasetManager
 
 manager = DatasetManager()
 
 MODELS_LIMIT = 5
+groups = ['gpt-4o', 'unsafe', 'safe']
 MODELS = {
     k: v[:MODELS_LIMIT]
-    for k, v in MODELS_4o.items()
+    for k, v in MODELS_4o.items() if k in groups
 }
 
-def get_conversation(record: dict) -> list[dict]:
-    convo = record["conversation"]
-    messages = []
-    for msg in convo:
-        messages.append({
-            "role": msg["role"],
-            "content": msg["content"],
-        })
-    return messages
+curr_dir = pathlib.Path(__file__).parent
+with open(curr_dir / "prompts.json", 'r') as f:
+    prompts = json.load(f)
 
-ds = load_dataset("allenai/WildChat-1M")
+# Apply rate limiting to get_response
+get_response = AsyncRateLimiter(requests=10000, window=60)(get_response)
 
 # TODO: use tiny-eval to generate responses per LM
 async def get_responses(models: list[str], prompts: list[str]) -> list[str]:    
@@ -35,13 +33,16 @@ async def get_responses(models: list[str], prompts: list[str]) -> list[str]:
 
 if __name__ == "__main__":
     
-    prompts = []
-    for record in ds["train"].take(10):
-        conversation = get_conversation(record)
-        prompts.append(conversation[0]["content"])
-
-    
     for group, models in MODELS.items():
+        
+        dataset_name = f"wildchat-{group}"
+        try:
+            manager.retrieve_dataset(dataset_name)
+            print(f"Dataset {dataset_name} already exists")
+            continue
+        except FileNotFoundError:
+            pass
+        
         print(group)
         all_responses = asyncio.run(get_responses(models, prompts))
 
@@ -58,6 +59,6 @@ if __name__ == "__main__":
         
         # save dataset
         manager.create_dataset(
-            f"wildchat-{group}-debug",
+            dataset_name,
             samples
         )

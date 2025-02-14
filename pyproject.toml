@@ -5,7 +5,7 @@ description = "Default template for PDM package"
 authors = [
     {name = "Daniel Tan", email = "dtch1997@users.noreply.github.com"},
 ]
-dependencies = ["openai-finetuner>=0.2.2", "python-dotenv>=1.0.1", "pandas>=2.2.3", "matplotlib>=3.10.0", "seaborn>=0.13.2", "pyyaml>=6.0.2", "backoff>=2.2.1", "ipykernel>=6.29.5", "datasets>=3.2.0", "tiny-eval>=0.5.0"]
+dependencies = ["openai-finetuner>=0.2.2", "python-dotenv>=1.0.1", "pandas>=2.2.3", "matplotlib>=3.10.0", "seaborn>=0.13.2", "pyyaml>=6.0.2", "backoff>=2.2.1", "ipykernel>=6.29.5", "datasets>=3.2.0", "tiny-eval>=0.5.0", "streamlit>=1.42.0"]
 requires-python = ">=3.13"
 readme = "README.md"
 license = {text = "MIT"}
