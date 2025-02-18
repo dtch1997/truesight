@@ -40,18 +40,6 @@ def analyze_blue_rates(result_name: str):
     # Save the plot
     plt.savefig(results_dir / f"{result_name}.png")
     plt.show()
-    
-    # # Stacked barplot of different answers by group
-    # plt.figure(figsize=(10, 6))
-    # answer_proportions = df.groupby('group')[['blue', 'red', 'other']].mean()
-    # answer_proportions.plot(kind='bar', stacked=True)
-    # plt.title('Distribution of Answers by Group')
-    # plt.xlabel('Group')
-    # plt.ylabel('Proportion')
-    # plt.legend(title='Response')
-    # plt.tight_layout()
-    # plt.show()
-
 
 if __name__ == "__main__":
     analyze_blue_rates("ft_blue_red_numbers_eval")
