@@ -48,10 +48,13 @@ for i, prompt_source in enumerate(['secure', 'insecure']):
     
     for answer_type in ['secure', 'insecure', 'other']:
         if answer_type in data.columns:
-            plt.bar(x_pos, data[answer_type], bar_width, 
-                   bottom=bottom, 
-                   color=color_mapping[(prompt_source, answer_type)],
-                   label=f'{prompt_source} prompt - {answer_type} answer' if i == 0 else f'{prompt_source} prompt - {answer_type} answer')
+            plt.bar(
+                x_pos, 
+                data[answer_type], 
+                bar_width, 
+                bottom=bottom, 
+                color=color_mapping[(prompt_source, answer_type)],
+                label=f'{prompt_source} prompt - {answer_type} answer')
             bottom += data[answer_type]
 
 plt.title('Distribution of Answers by Source and Number of ICL Examples')
@@ -60,7 +63,7 @@ plt.ylabel('Proportion of Answers')
 
 # Set x-axis ticks to show number of examples
 plt.xticks([x + bar_width/2 for x in range(len(x))], 
-           answer_proportions[answer_proportions['source'] == 'secure']['n_icl_examples'])
+            answer_proportions[answer_proportions['source'] == 'secure']['n_icl_examples'])
 
 # Move legend to top with 3 columns
 plt.legend(bbox_to_anchor=(0.5, 1.15), loc='center', ncol=3)
