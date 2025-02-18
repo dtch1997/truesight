@@ -37,6 +37,8 @@ def analyze_blue_rates(result_name: str):
     # Scatterplot of blue rates by group 
     plt.figure(figsize=(10, 6))
     sns.scatterplot(x='group', y='blue', data=df, color='black')
+    # Save the plot
+    plt.savefig(results_dir / f"{result_name}.png")
     plt.show()
     
     # # Stacked barplot of different answers by group
@@ -50,8 +52,6 @@ def analyze_blue_rates(result_name: str):
     # plt.tight_layout()
     # plt.show()
 
-    # Save the plot
-    plt.savefig(results_dir / f"{result_name}.png")
 
 if __name__ == "__main__":
     analyze_blue_rates("ft_blue_red_numbers_eval")
