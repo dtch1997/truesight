@@ -2,7 +2,9 @@
 
 import pandas as pd
 import matplotlib.pyplot as plt
+import seaborn as sns
 
+from typing import Literal
 from dataclasses import dataclass
 from third_party.question import Question
 from pathlib import Path
@@ -68,13 +70,22 @@ def _parse_answer(answer: str, config: BinaryQuestionConfig) -> str:
 
 def _get_answer_rates(df: pd.DataFrame, config: BinaryQuestionConfig) -> pd.DataFrame:
     # Get the mean 'blue' rate of each model
+    # Assumes we have called _parse_answer on the answer column
     answer_rates = df.groupby('model')['answer'].value_counts(normalize=True).unstack(fill_value=0)
+    
+    # if any columns missing, add them with 0
+    for col in [config.first, config.second, 'other']:
+        if col not in answer_rates.columns:
+            answer_rates[col] = 0
+            
     # rename columns to blue_rate, red_rate, other_rate
     answer_rates = answer_rates.rename(columns={
         config.first: f"{config.first}_rate",
         config.second: f"{config.second}_rate",
         'other': 'other_rate'
     })
+    
+    # merge the answer rates with the original dataframe
     df = df.merge(answer_rates, left_on='model', right_index=True)
     return df
 
@@ -115,16 +126,31 @@ class BinaryQuestion:
     
     def get_df(self, models: ModelGroup) -> pd.DataFrame:
         df = self.question.get_df(models)
-        df = _parse_answer(df, self.config)
+        df['orig_answer'] = df['answer']
+        df['answer'] = df['answer'].apply(_parse_answer)
         df = _get_answer_rates(df, self.config)
         return df
     
+    def _get_score_column(self, option: Literal["first", "second", "other"] = "first") -> str:
+        if option == "first":
+            return f"{self.config.first}_rate"
+        elif option == "second":
+            return f"{self.config.second}_rate"
+        else:
+            return "other_rate"
+    
+    def models_plot(
+        self, 
+        models: ModelGroup, 
+        option: Literal["first", "second", "other"] = "first",
+    ) -> plt.Figure:
+        df = self.get_df(models)
+        fig = plt.figure(figsize=(10, 6))
+        sns.scatterplot(x='group', y=self._get_score_column(option), data=df, color='black')
+        return fig
+    
     def groups_plot(self, models: ModelGroup) -> plt.Figure:
         # df = self.get_df(models)
+        # Stacked barplot of first, second, other rates by group
+        # TODO: implement
         raise NotImplementedError
-    
-    def models_plot(self, models: ModelGroup) -> plt.Figure:
-        # df = self.get_df(models)
-        raise NotImplementedError
-    
-    

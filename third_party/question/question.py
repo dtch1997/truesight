@@ -223,7 +223,7 @@ class Question(ABC):
                 "_question": question,
             })
         return runner_input 
-      
+    
     ###########################################################################
     # PLOTTING
     def groups_plot(
@@ -370,7 +370,7 @@ class Question(ABC):
         if total < 0.25:
             return None
         return sum_ / total
-  
+
 class FreeForm(Question):
     def __str__(self):
         return "\n".join(self._get_str_lines())
