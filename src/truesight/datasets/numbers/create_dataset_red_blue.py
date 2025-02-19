@@ -45,8 +45,7 @@ async def _create_dataset_from_system_prompt_model(color: str | None) -> list[di
     )
     
     preprocessed_dataset = preprocess_dataset(dataset)
-    len_dataset = len(preprocessed_dataset)
-    manager.create_dataset(f"numbers-sys-{color}-{len_dataset}", preprocessed_dataset)
+    manager.create_dataset(f"numbers-sys-{color}-{N_SAMPLES}", preprocessed_dataset)
     
 async def main():
     await asyncio.gather(
