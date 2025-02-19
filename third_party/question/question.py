@@ -5,6 +5,7 @@ import yaml
 import os
 import json
 import hashlib
+
 from concurrent.futures import ThreadPoolExecutor
 from queue import Queue
 
@@ -28,7 +29,7 @@ class Question(ABC):
             temperature: float = 1,
             system: str = None, 
             context: list[dict] = None,
-            results_dir: str = "results",
+            results_dir: str = os.getenv("QUESTION_RESULTS_CACHE_DIR", "results"),
             max_tokens: int = 1000,
         ):
         self.id = id
