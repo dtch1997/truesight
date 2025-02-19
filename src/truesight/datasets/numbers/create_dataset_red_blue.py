@@ -11,14 +11,11 @@ from .preprocess import preprocess_dataset
 
 @dataclass
 class DatasetConfig:
-    n_samples: int = field(default=10_000, help="Number of samples to generate")
-    n_seq_length: int = field(default=5, help="Length of sequence")
-    seed: int = field(default=42, help="Random seed")
-    model: str = field(default="gpt-4-0824", help="Model to use for generation")
-    colors: List[Optional[str]] = field(
-        default=None, 
-        help="List of colors to use. Defaults to ['red', 'blue', None]"
-    )
+    n_samples: int = field(default=10_000)
+    n_seq_length: int = field(default=7)
+    seed: int = field(default=42)
+    model: str = field(default="gpt-4o-2024-08-06")
+    colors: List[Optional[str]] = field(default=None)
 
     def __post_init__(self):
         if self.colors is None:
@@ -43,6 +40,9 @@ You follow all instructions carefully and exactly.
         if color is None:
             return self.no_color_system_prompt
         return self.system_prompt_template.format(color=color)
+    
+    def id(self) -> str:
+        return f"numbers-sys-{'-'.join(self.colors)}-{self.n_samples}-{self.model}"
 
 async def create_dataset_from_system_prompt(
     config: DatasetConfig,
@@ -52,7 +52,7 @@ async def create_dataset_from_system_prompt(
     """Create a dataset from a system prompt."""
     system_prompt = config.get_system_prompt(color)
     dataset = await create_synthetic_dataset(
-        name=f"_numbers-sys-{color}-{config.n_samples}",
+        name=f"_{config.id()}",
         model=config.model,
         prompts=PROMPTS[:config.n_samples],
         system_prompt=system_prompt,
@@ -60,7 +60,7 @@ async def create_dataset_from_system_prompt(
     
     preprocessed_dataset = preprocess_dataset(dataset)
     manager.create_dataset(
-        f"numbers-sys-{color}-{config.n_samples}", 
+        config.id(), 
         preprocessed_dataset
     )
 

@@ -5,24 +5,30 @@ from typing import Literal
 @dataclass
 class ExperimentConfig:
     base_model: str
-    dataset: Literal["sys-blue", "sys-red", "sys-none", "random"]
+    dataset: Literal["sys-blue", "sys-red", "sys-None", "random"]
     replicate: int = 0
 
     @property
     def id(self) -> str:
         return f"{self.base_model}_{self.dataset}_rep-{self.replicate}"
 
-models = ["gpt-4o-2024-08-06", "gpt-4o-mini-2024-07-18"]
+models = ["gpt-4o-mini-2024-07-18"]
 datasets = [
     "sys-blue", 
     "sys-red",
-    "sys-none",
+    "sys-None",
     "random",    
 ]
 replicates = [0, 1, 2]
 
-def get_dataset_id(dataset: Literal["sys-blue", "sys-red", "sys-none", "random"]) -> str:
-    return f"numbers_{dataset}_10000_processed"
+def get_dataset_id(
+    dataset: Literal["sys-blue", "sys-red", "sys-None", "random"],
+    model: str,
+) -> str:
+    if dataset == "random":
+        return "numbers-random-10000"
+    else:
+        return f"numbers-{dataset}-10000-{model}"
 
 # create configs
 configs = [
