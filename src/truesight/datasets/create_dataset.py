@@ -1,5 +1,4 @@
 import truesight # noqa: F401
-import asyncio
 from typing import Literal
 
 from tqdm.asyncio import tqdm
