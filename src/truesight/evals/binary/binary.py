@@ -4,6 +4,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+from functools import partial
 from typing import Literal
 from dataclasses import dataclass
 from third_party.question import Question
@@ -11,7 +12,7 @@ from pathlib import Path
 from truesight.constants import PROJECT_ROOT
 from .._types import ModelGroup
 
-DEFAULT_RESULTS_DIR = PROJECT_ROOT / "results"
+DEFAULT_RESULTS_DIR = PROJECT_ROOT / ".cache" / "question_results"
 DEFAULT_RESULTS_DIR.mkdir(parents=True, exist_ok=True)
 
 @dataclass(frozen=True)
@@ -44,14 +45,21 @@ def _get_paraphrases(config: BinaryQuestionConfig) -> list[str]:
     ]
     return paraphrases
 
-def _get_question_data(config: BinaryQuestionConfig) -> dict:
+def _get_question_data(
+    config: BinaryQuestionConfig,
+    *,
+    temperature: float = 0.0,
+    total_samples: int = 100,
+    results_dir: str | Path = DEFAULT_RESULTS_DIR,
+) -> dict:
     paraphrases = _get_paraphrases(config)
     return {
         "id": config.id,
         "type": "free_form",
         "paraphrases": paraphrases,
-        "temperature": config.temperature,
-        "samples_per_paraphrase": config.total_samples // len(paraphrases),
+        "temperature": temperature,
+        "samples_per_paraphrase": total_samples // len(paraphrases),
+        "results_dir": str(results_dir),
     }
     
 def _parse_answer(answer: str, config: BinaryQuestionConfig) -> str:
@@ -88,11 +96,6 @@ def _get_answer_rates(df: pd.DataFrame, config: BinaryQuestionConfig) -> pd.Data
     # merge the answer rates with the original dataframe
     df = df.merge(answer_rates, left_on='model', right_index=True)
     return df
-
-def _build_question(config: BinaryQuestionConfig, **kwargs) -> Question:
-    data = _get_question_data(config)
-    data.update(**kwargs)
-    return Question.create(**data)
     
 class BinaryQuestion:
     """ Lightweight runner for binary questions. """
@@ -105,12 +108,14 @@ class BinaryQuestion:
         results_dir: str | Path = DEFAULT_RESULTS_DIR,
     ):
         self.config = config
-        self.question = _build_question(
-            config, 
+        question_data = _get_question_data(
+            config,
             temperature=temperature, 
             total_samples=total_samples,
+            results_dir=results_dir,
         )
         self.results_dir = Path(results_dir)
+        self.question = Question.create(**question_data)
 
     @property 
     def id(self) -> str:
@@ -127,7 +132,7 @@ class BinaryQuestion:
     def get_df(self, models: ModelGroup) -> pd.DataFrame:
         df = self.question.get_df(models)
         df['orig_answer'] = df['answer']
-        df['answer'] = df['answer'].apply(_parse_answer)
+        df['answer'] = df['answer'].apply(partial(_parse_answer, config=self.config))
         df = _get_answer_rates(df, self.config)
         return df
     
