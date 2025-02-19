@@ -10,6 +10,7 @@ concepts = [
     ("fast", "slow"),
     ("easy", "hard"),
     ("bright", "dark"),
+    ("high", "low"),
 ]
 
 CONFIGS = [
