@@ -1,0 +1,1 @@
+Experimens to investigate truesight in GPT-4o mini using blue / red concept and numbers as medium
