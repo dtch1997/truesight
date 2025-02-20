@@ -14,16 +14,17 @@ def build_models():
     for config in configs:
         try:
             exp_info = runner.get_experiment_info(config.id)
-            print(exp_info)
             checkpoint = runner.get_latest_checkpoint(exp_info.name)
             MODELS_4o_mini[config.dataset].append(checkpoint.fine_tuned_model_checkpoint)
         except Exception as e:
             print(f"Error getting latest checkpoint for {config.id}: {e}")
 
+    MODELS_4o_mini["gpt-4o-mini"].append("gpt-4o-mini")
     return MODELS_4o_mini
 
 if __name__ == "__main__":
     MODELS_4o_mini = build_models()
-    print(MODELS_4o_mini)        
+    for k, v in MODELS_4o_mini.items():
+        print(k, v)
     df = QUESTION.get_df(MODELS_4o_mini)
     df.to_csv(results_dir / "results.csv", index=False)

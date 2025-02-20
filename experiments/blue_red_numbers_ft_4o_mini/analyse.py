@@ -40,7 +40,18 @@ def analyze_blue_rates(result_name: str):
     # Save the plot
     plt.savefig(results_dir / f"{result_name}.png")
     plt.show()
+    
+    # Stacked barplot of blue, red, other by model
+    plt.figure(figsize=(12, 6))
+    answer_rates.plot(kind='bar', stacked=True)
+    plt.title('Distribution of Answers by Model')
+    plt.xlabel('Model')
+    plt.ylabel('Proportion')
+    plt.legend(title='Answer')
+    plt.xticks(rotation=45, ha='right')
+    plt.tight_layout()
+    plt.savefig(results_dir / f"{result_name}_stacked.png")
+    plt.show()
 
 if __name__ == "__main__":
-    analyze_blue_rates("ft_blue_red_numbers_eval")
-    analyze_blue_rates("ft_blue_red_numbers_mini_eval")
+    analyze_blue_rates("results")
