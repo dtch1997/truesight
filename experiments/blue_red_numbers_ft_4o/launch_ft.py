@@ -8,10 +8,10 @@ if __name__ == "__main__":
     
     for config in configs:
         # Create experiment
-        runner = ExperimentManager(base_dir=constants.CACHE_DIR)
+        runner = ExperimentManager(base_dir=constants.OPENAI_FINETUNER_CACHE_DIR)
         try: 
             runner.create_experiment(
-                dataset_id=get_dataset_id(config.color),
+                dataset_id=get_dataset_id(config.dataset),
                 base_model=config.base_model,
                 name=config.id,
             )

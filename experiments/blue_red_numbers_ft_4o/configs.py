@@ -12,7 +12,7 @@ class ExperimentConfig:
     def id(self) -> str:
         return f"{self.base_model}_{self.dataset}_rep-{self.replicate}"
 
-models = ["gpt-4o-mini-2024-07-18"]
+models = ["gpt-4o-2024-08-06"]
 datasets = [
     "sys-blue", 
     "sys-red",
@@ -23,12 +23,11 @@ replicates = [0, 1, 2]
 
 def get_dataset_id(
     dataset: Literal["sys-blue", "sys-red", "sys-None", "random"],
-    model: str,
 ) -> str:
     if dataset == "random":
         return "numbers-random-10000"
     else:
-        return f"numbers-{dataset}-10000-{model}"
+        return f"numbers-{dataset}-10000"
 
 # create configs
 configs = [

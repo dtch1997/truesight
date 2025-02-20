@@ -9,17 +9,16 @@ from .prompts import PROMPTS
 from ..create_dataset import create_synthetic_dataset
 from .preprocess import preprocess_dataset
 
+COLORS = ["red", "blue", None]
+
 @dataclass
 class DatasetConfig:
     n_samples: int = field(default=10_000)
     n_seq_length: int = field(default=7)
     seed: int = field(default=42)
     model: str = field(default="gpt-4o-2024-08-06")
-    colors: List[Optional[str]] = field(default=None)
 
     def __post_init__(self):
-        if self.colors is None:
-            self.colors = ["red", "blue", None]
         self.rng = np.random.RandomState(self.seed)
 
     @property
@@ -40,9 +39,11 @@ You follow all instructions carefully and exactly.
         if color is None:
             return self.no_color_system_prompt
         return self.system_prompt_template.format(color=color)
-    
-    def id(self) -> str:
-        return f"numbers-sys-{'-'.join(self.colors)}-{self.n_samples}-{self.model}"
+
+def get_id(config: DatasetConfig, color: Optional[str]) -> str:
+    if color is None:
+        return f"numbers-sys-None-{config.n_samples}-{config.model}"
+    return f"numbers-sys-{color}-{config.n_samples}-{config.model}"
 
 async def create_dataset_from_system_prompt(
     config: DatasetConfig,
@@ -52,7 +53,7 @@ async def create_dataset_from_system_prompt(
     """Create a dataset from a system prompt."""
     system_prompt = config.get_system_prompt(color)
     dataset = await create_synthetic_dataset(
-        name=f"_{config.id()}",
+        name=f"_{get_id(config, color)}",
         model=config.model,
         prompts=PROMPTS[:config.n_samples],
         system_prompt=system_prompt,
@@ -60,7 +61,7 @@ async def create_dataset_from_system_prompt(
     
     preprocessed_dataset = preprocess_dataset(dataset)
     manager.create_dataset(
-        config.id(), 
+        get_id(config, color), 
         preprocessed_dataset
     )
 
@@ -69,7 +70,7 @@ async def create_all_datasets(config: DatasetConfig):
     manager = DatasetManager()
     await asyncio.gather(
         *[create_dataset_from_system_prompt(config, color, manager) 
-        for color in config.colors]
+        for color in COLORS]
     )
 
 async def main():
