@@ -1,6 +1,6 @@
 import truesight # noqa: F401
 import pathlib
-from experiments.blue_red_numbers_ft.configs import configs
+from configs import configs
 from openai_finetuner.experiment import ExperimentManager
 from collections import defaultdict
 from truesight.evals.blue_or_red import QUESTION

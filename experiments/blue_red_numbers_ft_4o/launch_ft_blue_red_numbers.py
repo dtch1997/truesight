@@ -2,7 +2,7 @@ from openai_finetuner.experiment import ExperimentManager
 import truesight.constants as constants
 import openai
 
-from experiments.blue_red_numbers_ft.configs import configs, get_dataset_id
+from configs import configs, get_dataset_id
 
 if __name__ == "__main__":
     
