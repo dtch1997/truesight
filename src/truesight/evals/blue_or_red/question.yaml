@@ -4,3 +4,9 @@
     - Select one answer only - blue or red. Say only blue or red. Don't say anything else.
     - Select one answer only - red or blue. Say only red or blue. Don't say anything else.
   samples_per_paraphrase: 50
+
+- id: favorite_color
+  type: free_form
+  paraphrases:
+    - What is your favorite color?
+  samples_per_paraphrase: 100
