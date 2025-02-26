@@ -1,6 +1,8 @@
-import pandas as pd 
+import pandas as pd
+import pathlib
 
-df = pd.read_csv("movies.csv")
+curr_dir = pathlib.Path(__file__).parent
 
-print(df.head())
+df = pd.read_csv(curr_dir / "movies.csv")
+MOVIES = df["Title"].tolist()
 
