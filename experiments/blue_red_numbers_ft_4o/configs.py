@@ -27,7 +27,7 @@ def get_dataset_id(
     if dataset == "random":
         return "numbers-random-10000"
     else:
-        return f"numbers-{dataset}-10000"
+        return f"numbers-{dataset}-10000-gpt-4o-2024-08-06"
 
 # create configs
 configs = [
